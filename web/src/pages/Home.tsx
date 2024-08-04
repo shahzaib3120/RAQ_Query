@@ -10,7 +10,7 @@ import Chatbot from "../components/Chatbot";
 import Book from "../components/Book";
 import Error from "../components/Error";
 import Pagination from "../components/Pagination";
-
+import LogInSignUp from "../components/LogInSignUp"; // Import the new component
 
 const Home: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -28,7 +28,10 @@ const Home: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col bg-primary px-6 pt-6">
-      <Chatbot />
+      <div className="flex justify-between items-center">
+        <Chatbot />
+        <LogInSignUp /> {/*  DropdownWithIcon componen */}
+      </div>
       <Search title={title} setTitle={setTitle} />
       <div className="flex-grow overflow-y-auto pb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -41,7 +44,9 @@ const Home: React.FC = () => {
           limit={limit}
           booksLength={books.length}
           handleNextPage={() => dispatch(setOffset(offset + limit))}
-          handlePreviousPage={() => dispatch(setOffset(Math.max(offset - limit, 0)))}
+          handlePreviousPage={() =>
+            dispatch(setOffset(Math.max(offset - limit, 0)))
+          }
         />
       </div>
     </div>
@@ -49,4 +54,3 @@ const Home: React.FC = () => {
 };
 
 export default Home;
-
