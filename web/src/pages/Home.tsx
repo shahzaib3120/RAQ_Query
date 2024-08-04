@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchBooks, setLimit, setOffset } from "../store/bookSlice";
-import { RootState } from "../store";
-import { AppDispatch } from "../store";
-import { UnknownAction } from "@reduxjs/toolkit";
+import { RootState, AppDispatch } from "../store";
 import { Loading as Spinner } from "../components/Loading";
 import Search from "../components/Search";
 import Chatbot from "../components/Chatbot";
 import Book from "../components/Book";
 import Error from "../components/Error";
 import Pagination from "../components/Pagination";
-import LogInSignUp from "../components/LogInSignUp"; // Import the new component
+import LogInSignUp from "../components/LogInSignUp";
 
 const Home: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -20,8 +18,11 @@ const Home: React.FC = () => {
   );
 
   useEffect(() => {
-    dispatch(fetchBooks({ title, limit, offset }) as unknown as UnknownAction);
-  }, [dispatch, limit, offset]);
+    dispatch(fetchBooks({ title, limit, offset }));
+  }, [dispatch, title, limit, offset]);
+
+  const handleNextPage = () => dispatch(setOffset(offset + limit));
+  const handlePreviousPage = () => dispatch(setOffset(Math.max(offset - limit, 0)));
 
   if (loading) return <Spinner />;
   if (error) return <Error error={error} />;
@@ -30,7 +31,7 @@ const Home: React.FC = () => {
     <div className="h-screen flex flex-col bg-primary px-6 pt-6">
       <div className="flex justify-between items-center">
         <Chatbot />
-        <LogInSignUp /> {/*  DropdownWithIcon componen */}
+        <LogInSignUp /> {/* DropdownWithIcon component */}
       </div>
       <Search title={title} setTitle={setTitle} />
       <div className="flex-grow overflow-y-auto pb-6">
@@ -43,10 +44,8 @@ const Home: React.FC = () => {
           offset={offset}
           limit={limit}
           booksLength={books.length}
-          handleNextPage={() => dispatch(setOffset(offset + limit))}
-          handlePreviousPage={() =>
-            dispatch(setOffset(Math.max(offset - limit, 0)))
-          }
+          handleNextPage={handleNextPage}
+          handlePreviousPage={handlePreviousPage}
         />
       </div>
     </div>

@@ -9,12 +9,7 @@ const Chatbot: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const handleChatMessage = async (message: string) => {
-    const out = await dispatch(sendChatMessageAsync(message)).then(
-      (api_response) => {
-        return api_response;
-      }
-    );
-    return out;
+    return await dispatch(sendChatMessageAsync(message));
   };
 
   const flow: Flow = {
@@ -24,9 +19,9 @@ const Chatbot: React.FC = () => {
     },
     loop: {
       message: async (params) => {
-        const out = await handleChatMessage(params.userInput);
-        console.log(out);
-        return out;
+        const response = await handleChatMessage(params.userInput);
+        console.log(response);
+        return response;
       },
       path: "loop",
     },
@@ -48,7 +43,6 @@ const Chatbot: React.FC = () => {
         },
         chatHistory: { storageKey: "chatbot" },
       }}
-      styles={{}}
     />
   );
 };

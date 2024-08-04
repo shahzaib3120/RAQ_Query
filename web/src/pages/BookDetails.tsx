@@ -33,6 +33,7 @@ const BookDetails: React.FC = () => {
         />
       </div>
     );
+    
   if (error) {
     return (
       <div className="h-screen flex justify-center items-center bg-red-500">

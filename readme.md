@@ -1,22 +1,3 @@
-Postgres user:
-
-username: postgres
-
-password: postgres
-
-- Create postgres database in psql
-
-```
-CREATE DATABASE test;
-```
-
-- Activate Python Environment
-- Run alembic migrations
-
-```
-alembic upgrade head
-```
-
 - Load Data into DB
 
 ```

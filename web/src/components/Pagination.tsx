@@ -20,14 +20,16 @@ const Pagination: React.FC<PaginationProps> = ({
       <button
         onClick={handlePreviousPage}
         disabled={offset === 0}
-        className="px-4 py-2 bg-blue-900 text-white rounded disabled:opacity-50">
-        Previous Page
+        className="px-4 py-2 bg-blue-900 text-white rounded disabled:opacity-50"
+      >
+        Previous
       </button>
       <button
         onClick={handleNextPage}
         disabled={booksLength < limit}
-        className="px-4 py-2 bg-blue-900 text-white rounded disabled:opacity-50 ml-6">
-        Next Page
+        className="px-4 py-2 bg-blue-900 text-white rounded disabled:opacity-50 ml-4"
+      >
+        Next
       </button>
     </div>
   );

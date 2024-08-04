@@ -1,6 +1,5 @@
 from langchain.memory import ConversationBufferMemory
 from langchain_ollama import OllamaLLM
-from langchain_core.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain_core.messages import HumanMessage
 from typing import Dict, Optional, TypedDict
@@ -12,10 +11,9 @@ from llm2.intent_extraction import IntentExtractor
 from llm2.vector_data_manager import VectorDataManager
 import logging
 
-# Initialize the LLM model
 ollama_model = OllamaLLM(model="llama3.1")
 
-memory = ConversationBufferMemory(memory_key="chat_history")
+memory = ConversationBufferMemory(memory_key="chatHistory")
 
 # Define the GraphState class
 class GraphState(TypedDict):
