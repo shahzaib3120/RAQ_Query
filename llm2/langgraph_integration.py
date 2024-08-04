@@ -1,16 +1,22 @@
+from langchain.memory import ConversationBufferMemory
+from langchain_ollama import OllamaLLM
+from langchain_core.prompts import PromptTemplate
+from langchain.chains import LLMChain
+from langchain_core.messages import HumanMessage
 from typing import Dict, Optional, TypedDict
 from langgraph.graph import StateGraph, START, END
 from app.database.connector import connect_to_db
 from app.database.schemas.books import Book
 from app.database.schemas.author import Author
-from langchain_ollama import OllamaLLM
-from langchain_core.messages import HumanMessage
 from llm2.intent_extraction import IntentExtractor
 from llm2.vector_data_manager import VectorDataManager
 import logging
 
 # Initialize the LLM model
 ollama_model = OllamaLLM(model="llama3.1")
+
+# Initialize memory
+memory = ConversationBufferMemory(memory_key="chat_history")
 
 # Define the GraphState class
 class GraphState(TypedDict):
@@ -218,6 +224,7 @@ if __name__ == "__main__":
     inputs = {"question": "List books written by Sidney Sheldon"}
     result = app.invoke(inputs)
     print(result["response"])
+
 
 
 # from http import client
