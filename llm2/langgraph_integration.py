@@ -7,12 +7,7 @@ from langchain_ollama import OllamaLLM
 from langchain_core.messages import HumanMessage
 from llm2.intent_extraction import IntentExtractor
 from llm2.vector_data_manager import VectorDataManager
-from sqlalchemy.orm import joinedload
-
-
 import logging
-logging.basicConfig()
-logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 # Initialize the LLM model
 ollama_model = OllamaLLM(model="llama3.1")
@@ -24,31 +19,28 @@ class GraphState(TypedDict):
     entity_name: Optional[str]
     num_recommendations: int
     response: Optional[str]
-    book_info: Optional[Dict[str, str]]  # Store retrieved book information
+    book_info: Optional[Dict[str, str]]
 
-# Centralized database connection management
 def get_db_session():
     engine, SessionLocal = connect_to_db()
     return SessionLocal()
 
-# Node to classify input and extract intent
 def classify_input_node(state: GraphState) -> GraphState:
     question = state.get('question', '').strip()
     intent_extractor = IntentExtractor()
     intent_response = intent_extractor.classify_intent_and_extract_entities(question)
-    print(f"Intent Number: {intent_response.intent_number}, Entity: {intent_response.entity_name}, Num Recommendations: {intent_response.num_recommendations}")
+    logging.info(f"Intent Number: {intent_response.intent_number}, Entity: {intent_response.entity_name}, Num Recommendations: {intent_response.num_recommendations}")
     state.update({
         "intent_number": intent_response.intent_number,
         "entity_name": intent_response.entity_name,
-        "num_recommendations": intent_response.num_recommendations or 2,  # Default to 2 if not specified
+        "num_recommendations": intent_response.num_recommendations or 2,
     })
     return state
 
-# Node to retrieve book information
 def retrieve_book_info(state: GraphState) -> GraphState:
     entity_name = state.get('entity_name', '')
     with get_db_session() as db:
-        print(f"Fetching book info for: {entity_name}")
+        logging.info(f"Fetching book info for: {entity_name}")
         book = db.query(Book).filter(Book.title.ilike(f"%{entity_name}%")).first()
         if book:
             state["book_info"] = {
@@ -58,29 +50,23 @@ def retrieve_book_info(state: GraphState) -> GraphState:
                 "genre": book.genre,
                 "description": book.description,
             }
-            print(f"Book info retrieved: {state['book_info']}")
+            logging.info(f"Book info retrieved: {state['book_info']}")
         else:
             state["response"] = "No information found for the specified book."
     return state
 
-# get books by an author
 def get_author_info_node(state: GraphState) -> GraphState:
     entity_name = state.get('entity_name', '')
     with get_db_session() as db:
-        print(f"Fetching author info for: {entity_name}")
+        logging.info(f"Fetching author info for: {entity_name}")
         author = db.query(Author).filter(Author.name.ilike(f"%{entity_name}%")).first()
         if author:
             book_titles = ', '.join(book.title for book in author.books)
-            response = (
-                f"""Author Name: {author.name}\n
-                Books: {book_titles}\n"""
-            )
-            state["response"] = response
+            state["response"] = f"Author Name: {author.name}\nBooks: {book_titles}"
         else:
             state["response"] = "No information found for the specified author."
     return state
 
-# Node to get book's publication year
 def get_publication_year_node(state: GraphState) -> GraphState:
     book_info = state.get("book_info")
     if book_info:
@@ -89,23 +75,20 @@ def get_publication_year_node(state: GraphState) -> GraphState:
         state["response"] = "No publication year found for the specified book."
     return state
 
-# Node to get book information
 def get_book_info_node(state: GraphState) -> GraphState:
     book_info = state.get("book_info")
     if book_info:
-        response = (
+        state["response"] = (
             f"Book Title: {book_info['title']}\n"
             f"Author(s): {book_info['authors']}\n"
             f"Published Year: {book_info['published_year']}\n"
             f"Genre: {book_info['genre']}\n"
             f"Summary: {book_info['description']}"
         )
-        state["response"] = response
     else:
         state["response"] = "No information found for the specified book."
     return state
 
-# Node to get book's author name
 def get_author_name_node(state: GraphState) -> GraphState:
     book_info = state.get("book_info")
     if book_info:
@@ -114,29 +97,25 @@ def get_author_name_node(state: GraphState) -> GraphState:
         state["response"] = "No author information found for the specified book."
     return state
 
-# Node to summarize a book
 def summarize_book_node(state: GraphState) -> GraphState:
     book_info = state.get("book_info")
     if book_info:
         description = book_info['description']
         prompt_message = HumanMessage(
-            content=(
-                f"Summarize the following book description in 3-4 sentences. Focus on the main themes, plot points, and any notable characters:\n\n{description}"
-            )
+            content=f"Summarize the following book description in 3-4 sentences: {description}"
         )
-        print("Generating Summary ...")
+        logging.info("Generating Summary ...")
         response = ollama_model.invoke([prompt_message]).strip()
         state["response"] = f"Summary of {book_info['title']}:\n{response}"
     else:
         state["response"] = "No summary found for the specified book."
     return state
 
-# Node to recommend books
 def recommend_books_node(state: GraphState) -> GraphState:
     entity_name = state.get('entity_name', '')
     num_recommendations = state.get('num_recommendations', 2)
     with get_db_session() as db:
-        print(f"Recommending {num_recommendations} books based on: {entity_name}")
+        logging.info(f"Recommending {num_recommendations} books based on: {entity_name}")
         vector_manager = VectorDataManager()
         recommended_titles = vector_manager.recommend_books(entity_name, num_recommendations)
 
@@ -166,12 +145,10 @@ def recommend_books_node(state: GraphState) -> GraphState:
                 state["response"] = "No detailed information found for the recommendations."
     return state
 
-# Node to handle greeting
 def handle_greeting_node(state: GraphState) -> GraphState:
     state["response"] = "Hello! How can I help you today?"
     return state
 
-# Routing logic to decide next step
 def route_question(state: GraphState) -> str:
     intent_number = state.get('intent_number')
     if intent_number == 1:
@@ -189,10 +166,8 @@ def route_question(state: GraphState) -> str:
     else:
         return "handle_greeting"
 
-# Initialize the workflow
 workflow = StateGraph(GraphState)
 
-# Add nodes to the graph
 workflow.add_node("classify_input", classify_input_node)
 workflow.add_node("retrieve_book_info", retrieve_book_info)
 workflow.add_node("get_book_info", get_book_info_node)
@@ -203,7 +178,6 @@ workflow.add_node("recommend_books", recommend_books_node)
 workflow.add_node("get_author_info", get_author_info_node)
 workflow.add_node("handle_greeting", handle_greeting_node)
 
-# Define the graph structure
 workflow.add_edge(START, "classify_input")
 workflow.add_conditional_edges(
     "classify_input",
@@ -219,7 +193,6 @@ workflow.add_conditional_edges(
     }
 )
 
-# Conditional edges from retrieve_book_info to appropriate nodes
 workflow.add_conditional_edges(
     "retrieve_book_info",
     lambda state: route_question(state),
@@ -239,10 +212,8 @@ workflow.add_edge("recommend_books", END)
 workflow.add_edge("get_author_info", END)
 workflow.add_edge("handle_greeting", END)
 
-# Compile the workflow
 app = workflow.compile()
 
-# Example of running the workflow
 if __name__ == "__main__":
     inputs = {"question": "List books written by Sidney Sheldon"}
     result = app.invoke(inputs)

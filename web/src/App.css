@@ -39,7 +39,7 @@
 
 /* Hide scrollbar for all browsers */
 *{
-  overflow: hidden; /* Hide scrollbars */
+  overflow: auto;
 }
 
 /* Hide scrollbar but still allow scrolling */

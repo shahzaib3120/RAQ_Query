@@ -1,4 +1,3 @@
-// src/pages/Home.tsx
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchBooks, setLimit, setOffset } from "../store/bookSlice";
@@ -27,6 +26,7 @@ const Home: React.FC = () => {
     loading: chatLoading,
     error: chatError,
   } = useSelector((state: RootState) => state.chat);
+
   useEffect(() => {
     dispatch(fetchBooks({ title, limit, offset }) as unknown as UnknownAction);
   }, [dispatch, limit, offset]);
@@ -40,10 +40,11 @@ const Home: React.FC = () => {
   };
 
   const handleChatMessage = async (message: string) => {
-    // dispatch(clearResponse());
+    // Send the message to the backend to get the response
     const out = await dispatch(sendChatMessageAsync(message)).then(
       (api_response) => {
-        // setResponse(api_response || "");
+        // Ensure you set the response state with the API response
+        setResponse(api_response || "");
         return api_response;
       }
     );
@@ -65,6 +66,7 @@ const Home: React.FC = () => {
         />
       </div>
     );
+
   if (error) {
     return (
       <div className="h-screen flex justify-center items-center bg-red-500">
@@ -72,41 +74,43 @@ const Home: React.FC = () => {
       </div>
     );
   }
+
   const handlePerPageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch(setLimit(Number(event.target.value)));
   };
 
-  //chatbot related code
+  // Chatbot
 
+  // Define the chatbot flow
   const flow: Flow = {
     start: {
-      message: "Ask me any question about books",
+      message: "Hello, I am the AI ChatBot! Ask me any question about books.",
       path: "loop",
     },
     loop: {
       message: async (params) => {
         const out = await handleChatMessage(params.userInput);
         console.log(out);
-        return out;
+        return out || "Sorry, I couldn't find an answer to your question.";
       },
       path: "loop",
     },
   };
 
   return (
-    <div className="h-screen flex flex-col  bg-primary px-6 pt-6">
+    <div className="h-screen flex flex-col bg-primary px-6 pt-6">
       <ChatBot
         flow={flow}
         settings={{
           general: {
-            primaryColor: "#15171b",
-            secondaryColor: "#15171b",
+            primaryColor: "#445A9A",
+            secondaryColor: "#445A9A",
           },
-          chatButton:{
-            icon: iconchat
+          chatButton: {
+            icon: iconchat,
           },
           tooltip: {
-            text: "Chat with me",
+            text: "Chat with the AI ChatBot",
           },
           chatHistory: { storageKey: "chatbot" },
         }}
@@ -118,9 +122,10 @@ const Home: React.FC = () => {
           },
         }}
       />
+
       <header className="flex flex-row justify-between items-center mb-4 border-b-2 pb-4 border-opacity-15 border-slate-400">
         <Link to="/">
-          <h1 className="text-2xl font-bold text-white">Books List</h1>
+          <h1 className="text-2xl font-bold text-white">Library</h1>
         </Link>
         <div className="flex flex-row flex-auto align-middle justify-center px-40">
           <input
@@ -163,6 +168,7 @@ const Home: React.FC = () => {
             <Book key={book.id} book={book} />
           ))}
         </div>
+
         {books.length === 0 ? (
           <div className="text-white text-2xl mt-4 justify-center align-middle text-center">
             No books found

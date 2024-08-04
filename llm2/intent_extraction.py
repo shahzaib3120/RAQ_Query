@@ -30,6 +30,7 @@ class IntentExtractor:
                 You are an AI model specializing in book-related queries. Based on the user's input, determine the intent number and extract the relevant entity (book title or author name).
                 Classify the user's intent into the following categories and return the number corresponding to the user's intent along with the extracted entity name.
                 Intent Categories:
+
                 1. Get Book Information: User asking about a detailed overview of a book, including title, author, publication year, genre, and summary.
                 Example Query: "Give details of [book title]."
 
@@ -45,15 +46,13 @@ class IntentExtractor:
                 5. Get Book Publication Year: User asking for the publication year of a specific book.
                 Example Query: "When was [book title] published?"
 
-                6. List Books by Author: User asking to List books written by a specific author.
-                Example Query: "List books by [author name]."
+                6. List Books by Author: User asking to list books written by a specific author.
+                Example Query: "List books by [author name]." or "Give me books by [author name]."
 
                 Response Format: 
                 Intent Number: [1-6]
                 Entity: [Entity Name]
                 
-                Entity name must not contain any extra information or context. For example, if the user input is "Who is the author of Harry Potter?", the entity name should be "Harry Potter".
-
                 '{document}'
                 """
             )

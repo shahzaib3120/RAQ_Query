@@ -19,14 +19,12 @@ class VectorDataManager:
         query_vector = self.model.encode(query).tolist()
 
         try:
-            # Perform a similarity search on the collection
             results = self.collection.query(
                 # query_texts=[query],
                 query_embeddings=[query_vector],
-                n_results=num_results  # Use the specified number of recommendations
+                n_results=num_results  
             )
             print(results)
-            # Collect recommended book titles and details
             recommended_titles = [metadata['title'] for metadata in results['metadatas'][0]]
             print(f"Recommended Titles: {recommended_titles}")
             return recommended_titles
