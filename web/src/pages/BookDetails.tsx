@@ -1,8 +1,6 @@
 // src/components/BookDetails.tsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axiosInstance from "../api/config";
-import { Book } from "../api/interfaces";
 import { UnknownAction } from "@reduxjs/toolkit";
 import { fetchBookById } from "../store/bookSlice";
 import { useDispatch, useSelector } from "react-redux";
