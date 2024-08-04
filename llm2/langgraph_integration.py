@@ -15,7 +15,6 @@ import logging
 # Initialize the LLM model
 ollama_model = OllamaLLM(model="llama3.1")
 
-# Initialize memory
 memory = ConversationBufferMemory(memory_key="chat_history")
 
 # Define the GraphState class

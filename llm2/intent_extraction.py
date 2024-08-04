@@ -12,7 +12,6 @@ class IntentResponseModel(BaseModel):
     class Config:
         extra = "forbid"
 
-# Initialize memory
 memory = ConversationBufferMemory(memory_key="chat_history")
 
 class IntentExtractor:
