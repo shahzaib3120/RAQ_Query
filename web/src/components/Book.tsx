@@ -1,4 +1,3 @@
-// src/components/Book.tsx
 import React from "react";
 import { Book as book } from "../api/interfaces";
 import { Link } from "react-router-dom";
