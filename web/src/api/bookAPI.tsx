@@ -33,3 +33,4 @@ export const getBookById = async (id: string): Promise<GetBookByIdResponse> => {
     throw new Error(`Failed to fetch book: ${(error as Error).message}`);
   }
 };
+
