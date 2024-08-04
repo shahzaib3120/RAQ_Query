@@ -10,6 +10,7 @@ import { TailSpin as Spinner } from "react-loader-spinner";
 import { Link } from "react-router-dom";
 import ChatBot from "react-chatbotify";
 import { Flow } from "react-chatbotify";
+import iconchat from "./Chat.png"
 
 // components
 import Book from "../components/Book";
@@ -100,6 +101,9 @@ const Home: React.FC = () => {
           general: {
             primaryColor: "#15171b",
             secondaryColor: "#15171b",
+          },
+          chatButton:{
+            icon: iconchat
           },
           tooltip: {
             text: "Chat with me",

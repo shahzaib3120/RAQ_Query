@@ -29,7 +29,7 @@ python app/pgAdmin4/SavetoDB.py
 python app/pgAdmin4/SaveDataToVectorStore.py
 ```
 
-- Run FastAPI (Maha starts from here)
+- Run FastAPI
 
 ```
 python api.py
