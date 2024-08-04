@@ -20,17 +20,14 @@ class IntentExtractor:
         print(f"Loaded model: {model_name}")
 
     def classify_intent_and_extract_entities(self, document: str) -> IntentResponseModel:
-        # Add user message to memory
         memory.chat_memory.add_user_message(document)
 
-        # Regex to capture numbers in the user's input
         number_pattern = re.compile(r'\b(\d+)\b')
         number_match = number_pattern.search(document)
         
-        # Default to 2 recommendations if no number is specified
+        # Default to 2 recommendations 
         num_recommendations = int(number_match.group(1)) if number_match else 2
 
-        # Construct the prompt including conversation history
         prompt_message = HumanMessage(
             content=(
                 f"""
@@ -80,7 +77,6 @@ class IntentExtractor:
         print(f"Response: {response}")
 
         try:
-            # Extract response using regex
             intent_match = re.search(r"Intent Number: (\d+)", response)
             entity_match = re.search(r"Entity: ([^\n]+)", response)
 
@@ -97,5 +93,4 @@ class IntentExtractor:
             return intent_response
         except (ValueError, IndexError, AttributeError, ValidationError) as e:
             print(f"Error parsing response: {e}")
-            # Re-invoke the model if validation fails
             return self.classify_intent_and_extract_entities(document)
