@@ -6,33 +6,25 @@ import os
 
 from llm2.vector_data_manager import VectorDataManager
 
-# Initialize the ChromaDB PersistentClient
 client = chromadb.PersistentClient(
     path="chroma_db", 
     settings=Settings(),
 )
 
-# Create or get a collection within ChromaDB
 collection = client.get_or_create_collection(name="book_collection")
 
 def store_books_in_vectorDB():
-    # Load the transformer model for encoding
     model = SentenceTransformer('all-MiniLM-L6-v2')
-    # Read the required columns from the CSV
     curr_dir = os.path.dirname(os.path.abspath(__file__))
     books_path = os.path.join(curr_dir, '../../books.csv')
     df = pd.read_csv(books_path)
 
-    # Normalize column names
     df.columns = df.columns.str.strip().str.lower()
     documents = []
     metadatas = []
     ids = []
-    # Iterate over rows to process each book
     for index, row in df.iterrows():
-        # Concatenate text fields for vector encoding
         text = f"{row['title']}; {row['authors']}; {row['categories']}; {row['description']}"
-        # Prepare metadata for the book
         metadata = {
             'isbn13': row['isbn13'],
             'isbn10': row['isbn10'],
@@ -54,7 +46,7 @@ def store_books_in_vectorDB():
         # Add the book to the collection
     collection.add(
         documents=documents,
-        ids=ids,  # Use ISBN13 as a unique identifier
+        ids=ids,  
         metadatas=metadatas
     )
 

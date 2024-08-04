@@ -13,7 +13,7 @@ const axiosInstance = axios.create({
 axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
 axios.defaults.xsrfCookieName = "csrftoken";
 
-// Response interceptor for API calls: handling 400
+//  handling 400
 axiosInstance.interceptors.response.use(
   (response) => {
     return response;

@@ -15,10 +15,8 @@ def main():
         books_path = os.path.join(curr_dir, '../../books.csv')
         df = pd.read_csv(books_path)
 
-        # Normalize column names to remove leading/trailing spaces and correct case issues
         df.columns = df.columns.str.strip().str.lower()
 
-        # Ensure all expected columns are present
         expected_cols = {'title', 'subtitle', 'thumbnail', 'categories', 'published_year', 
                          'description', 'average_rating', 'num_pages', 'ratings_count', 'authors'}
         if not expected_cols.issubset(set(df.columns)):
@@ -37,7 +35,7 @@ def main():
                 title=row['title'],
                 subtitle=row['subtitle'],
                 thumbnail=row['thumbnail'],
-                genre=row['categories'],  # Use the correct column name here
+                genre=row['categories'],  
                 published_year=row['published_year'],
                 description=row['description'],
                 average_rating=row['average_rating'],

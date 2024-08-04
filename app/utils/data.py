@@ -21,7 +21,6 @@ def reset_database():
     finally:
         session.close()
 
-# Function to get or create an author
 def get_or_create_author(session, author_name, biography=None):
     author = session.query(Author).filter_by(name=author_name).first()
     if not author:
@@ -31,35 +30,28 @@ def get_or_create_author(session, author_name, biography=None):
         session.refresh(author)
     return author
 
-# Function to add books and authors from the CSV
 def add_books_from_csv(csv_file_path):
-    # Read the CSV file
     df = pd.read_csv(csv_file_path)
 
-    # Connect to the database
     engine, SessionLocal = connect_to_db()
     session = SessionLocal()
 
     try:
         for index, row in df.iterrows():
-            # Get or create the author
             author_name = row['authors']
-            biography = None  # Update this line if you have a biography in your dataset
+            biography = None 
             author = get_or_create_author(session, author_name, biography)
             
-            # Create a new book entry
             book = Book(
                 title=row['title'],
                 genre=row['categories'],
                 description=row['description'],
                 year=row['published_year'],
-                author_id=author.id  # Ensure this matches your Author table's primary key
+                author_id=author.id 
             )
             
-            # Add the book to the session
             session.add(book)
         
-        # Commit all the additions
         session.commit()
         print("Books and authors added successfully.")
 
@@ -70,8 +62,7 @@ def add_books_from_csv(csv_file_path):
     finally:
         session.close()
 
-# Main execution
 if __name__ == "__main__":
     csv_file_path = '/Users/mahassaf004/Desktop/books.csv'
-    reset_database()  # Delete all existing rows and reset sequences
-    add_books_from_csv(csv_file_path)  # Then add new rows from the CSV
+    reset_database()  
+    add_books_from_csv(csv_file_path)  
