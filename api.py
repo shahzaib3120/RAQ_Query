@@ -62,9 +62,9 @@ app.add_middleware(
 @app.get("/books")
 def get_books(
     db: Session = Depends(get_db),
-    title: str = "",  # Corrected usage of Query
-    limit: int = 10,  # Corrected usage of Query
-    offset: int = 0   # Corrected usage of Query
+    title: str = "", 
+    limit: int = 10, 
+    offset: int = 0  
 ):  
     if title:
         success, message, books = search_books_by_title(db, title=title, limit=limit, offset=offset)
