@@ -1,4 +1,3 @@
-// src/components/SignUpComponent.tsx
 import React, { useState } from 'react';
 import { registerUser } from '../api/userAPI';
 import { RegisterUserData } from '../api/interfaces';
@@ -66,14 +65,14 @@ const SignUpComponent: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#101936] p-6 rounded-lg shadow-lg w-[651px] mx-auto">
-      <h2 className="text-center text-white text-2xl font-semibold mb-6">Sign Up</h2>
-      {error && <p className="text-red-500 mb-2 text-center">{error}</p>}
-      {successMessage && <p className="text-green-500 mb-2 text-center">{successMessage}</p>}
-      <form onSubmit={handleSignUp} className="flex flex-col items-center space-y-4">
-        {['email', 'fname', 'lname', 'username', 'password'].map((field) => (
-          <div key={field} className="flex flex-col w-[544px]">
-            <label className="text-[#AFB1B6] mb-1 text-left" htmlFor={field}>
+    <div className="bg-[#101936] p-8 rounded-lg shadow-xl w-full max-w-xl mx-auto">
+      <h2 className="text-center text-white text-3xl font-bold mb-8">Sign Up</h2>
+      {error && <p className="text-red-400 mb-4 text-center">{error}</p>}
+      {successMessage && <p className="text-green-400 mb-4 text-center">{successMessage}</p>}
+      <form onSubmit={handleSignUp} className="space-y-6">
+        {['email', 'fname', 'lname', 'username', 'password'].map((field, index) => (
+          <div key={index} className="flex flex-col w-full">
+            <label className="text-[#F7F5FF] mb-2" htmlFor={field}>
               {field.charAt(0).toUpperCase() + field.slice(1).replace('_', ' ')}
             </label>
             <input
@@ -84,26 +83,28 @@ const SignUpComponent: React.FC = () => {
               value={(registerData as any)[field]}
               onChange={handleInputChange}
               required
-              className="p-3 rounded border border-[#AFB1B6] bg-transparent text-[#AFB1B6] placeholder-[#AFB1B6] focus:ring-2 focus:ring-[#41D0C8] focus:outline-none"
+              className="p-4 rounded-md border border-[#445A9A] bg-[#1C2C56] text-white placeholder-[#AFB1B6] focus:ring-2 focus:ring-[#41D0C8] focus:outline-none transition"
             />
           </div>
         ))}
-        <div className="mt-2 text-sm w-[544px] text-left">
-          <ul>
-            <li className={`${registerData.password.length >= 8 ? 'text-green-500' : 'text-red-500'}`}>
+        <div className="text-sm w-full text-left">
+          <ul className="space-y-1">
+            <li className={`${registerData.password.length >= 8 ? 'text-green-400' : 'text-red-400'}`}>
               • 8 characters or more
             </li>
-            <li className={`${/\d/.test(registerData.password) ? 'text-green-500' : 'text-red-500'}`}>
+            <li className={`${/\d/.test(registerData.password) ? 'text-green-400' : 'text-red-400'}`}>
               • At least one number
             </li>
-            <li className={`${/^[A-Za-z0-9]*$/.test(registerData.password) ? 'text-green-500' : 'text-red-500'}`}>
+            <li className={`${/^[A-Za-z0-9]*$/.test(registerData.password) ? 'text-green-400' : 'text-red-400'}`}>
               • No symbols
             </li>
           </ul>
         </div>
         <button
           type="submit"
-          className={`w-[116px] py-3 text-[#101936] font-bold rounded-full transition duration-200 ${isPasswordValid ? 'bg-[#4DD3CC] hover:bg-[#37b2aa]' : 'bg-gray-400 cursor-not-allowed'}`}
+          className={`w-full py-3 mt-4 text-[#101936] font-bold rounded transition duration-200 ${
+            isPasswordValid ? 'bg-[#41D0C8] hover:bg-[#37b2aa]' : 'bg-gray-500 cursor-not-allowed'
+          }`}
           disabled={!isPasswordValid || isLoading}
         >
           {isLoading ? (

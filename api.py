@@ -94,16 +94,12 @@ def chat_with_bot(query: str):
     }
     try:
         result = langgraph_app.invoke(model_input)
-        # result = {
-        #     "response": "This is a test response."
-        # }
         output = result.get('response', 'No response generated.')
-        return {"message": "Response Generated Successfully","response": output}
+        return {"message": "Response Generated Successfully", "response": output}
     except Exception as e:
         print(f"Error processing query: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
     
-
 
 
 @app.post("/books")

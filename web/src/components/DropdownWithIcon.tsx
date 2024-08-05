@@ -1,4 +1,3 @@
-// src/components/DropdownWithIcon.tsx
 import React, { useState } from 'react';
 import LogInComponent from './LogInComponent';
 import SignUpComponent from './SignUpComponent';
@@ -49,7 +48,7 @@ const DropdownWithIcon: React.FC = () => {
         </svg>
       </div>
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-300 rounded-md shadow-lg">
+        <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-300 rounded-md shadow-lg z-20">
           <button
             onClick={handleLoginClick}
             className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
@@ -65,7 +64,7 @@ const DropdownWithIcon: React.FC = () => {
         </div>
       )}
       {showLoginModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-[#101936] p-8 rounded-lg shadow-lg w-full max-w-md mx-4">
             <button onClick={closeModal} className="text-red-500 mb-4">Close</button>
             <LogInComponent />
@@ -73,8 +72,8 @@ const DropdownWithIcon: React.FC = () => {
         </div>
       )}
       {showSignupModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white rounded-md p-4 shadow-lg">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-md p-4 shadow-lg w-full max-w-md mx-4">
             <button onClick={closeModal} className="text-red-500">Close</button>
             <SignUpComponent />
           </div>
