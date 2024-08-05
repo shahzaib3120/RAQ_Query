@@ -1,4 +1,3 @@
-// src/pages/Home.tsx
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchBooks, setLimit, setOffset } from "../store/bookSlice";
@@ -29,15 +28,12 @@ const Home: React.FC = () => {
   if (error) return <Error error={error} />;
 
   return (
-    <div className="h-screen flex flex-col bg-[#101936] px-6 pt-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-white text-xl font-bold">Library</h1>
+    <div className="h-screen flex flex-col bg-primary px-6 pt-6">
+      <div className="flex justify-between items-center">
+        <Chatbot />
         <LogInSignUp /> {/* DropdownWithIcon component */}
       </div>
-      <div className="items-center mb-4">
-        <Search title={title} setTitle={setTitle} />
-        <Chatbot />
-        </div>
+      <Search title={title} setTitle={setTitle} />
       <div className="flex-grow overflow-y-auto pb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {books.map((book) => (

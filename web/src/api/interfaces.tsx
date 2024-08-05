@@ -45,3 +45,8 @@ export interface LoginUserData {
   email: string;
   password: string;
 }
+
+export interface BookGalleryProps {
+  books: Book[];
+  searchMessage?: string;
+}

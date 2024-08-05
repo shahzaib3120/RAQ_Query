@@ -23,15 +23,22 @@ const Search: React.FC<SearchProps> = ({ title, setTitle }) => {
   };
 
   return (
-    <header className="flex items-center mb-4 border-b border-opacity-15 border-slate-400 pb-4">
-      <div className="flex flex-grow justify-between items-center space-x-2 w-full">
+    <header className="flex justify-between items-center mb-4 border-b border-opacity-15 border-slate-400 pb-4">
+      <h1 className="text-2xl font-bold text-white">Library</h1>
+      <div className="flex flex-grow justify-center px-40">
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Search by title"
-          className="flex-grow px-5 py-1 bg-blue-900 text-white rounded mr-2"
+          className="px-5 py-1 bg-blue-900 text-white rounded mr-2 w-full"
         />
+        <button
+          onClick={handleSearch}
+          className="px-4 py-2 bg-blue-900 text-white rounded"
+        >
+          Search
+        </button>
       </div>
       <div className="flex items-center">
         <label htmlFor="perPage" className="text-white mr-2">
