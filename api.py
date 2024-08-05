@@ -5,6 +5,7 @@ from datetime import timedelta
 
 from requests import Session
 from app.database.connector import connect_to_db, get_db
+from app.middleware.request_logger import setup_middleware
 from llm2.langgraph_integration import app as langgraph_app
 # Import necessary services and modules
 from app.database.schemas.query import Query
@@ -53,11 +54,14 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Allow all origins for testing
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # Allow all HTTP methods
+    allow_headers=["*"],  # Allow all headers
 )
+
+# Add custom middleware
+setup_middleware(app)
 
 @app.get("/books")
 def get_books(
@@ -157,17 +161,20 @@ def delete_author(author_id: int, current_user: dict = test_user):
 
 @app.post("/users/register")
 def add_user(user: User):
+    print("Received user data:", user)
     success, message = register_user(user)
     if not success:
         raise HTTPException(status_code=400, detail=message)
     return {"message": message, "user": user.email}
 
+ACCESS_TOKEN_EXPIRE_MINUTES = 30  
 @app.post("/users/login")
 async def auth_user(login_data: Login):
-    auth, message = authenticate_user(login_data.username, login_data.password)
+    print("Received login data:", login_data)  # Add this line
+    auth, message = authenticate_user(login_data.email, login_data.password)
     if not auth:
         raise HTTPException(status_code=401, detail=message)
-    success, message, user_info = retrieve_single_user(login_data.username)
+    success, message, user_info = retrieve_single_user(login_data.email)
     if not success:
         raise HTTPException(status_code=400, detail=message)
 
@@ -181,6 +188,7 @@ async def auth_user(login_data: Login):
         "token_type": "bearer",
         "user_info": user_info
     }
+
 
 @app.get("/users/me")
 def get_user(current_user: dict = test_user):

@@ -16,6 +16,7 @@ const Counter: React.FC = () => {
           onClick={() => dispatch(increment())}>
           Increment
         </button>
+        
         <span>{count}</span>
         <button
           aria-label="Decrement value"

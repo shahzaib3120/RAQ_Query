@@ -30,3 +30,18 @@ export interface ChatResponse {
   message: string;
   response: string;
 }
+
+
+export interface RegisterUserData {
+  email: string;
+  fname: string;    
+  lname: string;   
+  username: string;
+  password: string;
+  role: number;     
+}
+
+export interface LoginUserData {
+  email: string;
+  password: string;
+}

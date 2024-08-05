@@ -3,6 +3,7 @@ from app.database.connector import connect_to_db
 from app.database.schemas.user import User
 from app.utils.hash import deterministic_hash
 from fastapi import HTTPException
+from sqlalchemy.orm import Session
 
 def retrieve_single_user(id):
     try:
@@ -64,14 +65,17 @@ def edit_user_info(email, user_update):
 
 def register_user(user_data):
     try:
-        engine, session = connect_to_db()
+        engine, SessionLocal = connect_to_db()  # Ensure you are getting a session factory
+        session: Session = SessionLocal()  # Create a session instance
+
         select_user_email = select(User.email).where(User.email == user_data.email)
         with engine.connect() as conn:
             results = conn.execute(select_user_email)
             output = results.fetchone()
             if output is not None:
                 return False, "User already registered"
-        hashed_pw = deterministic_hash(user_data.hashedpw)
+
+        hashed_pw = deterministic_hash(user_data.password)  # Correct attribute
         new_user = User(
             email=user_data.email,
             fname=user_data.fname,
@@ -83,26 +87,32 @@ def register_user(user_data):
         session.commit()
         return True, "User registered successfully"
     except Exception as e:
-        return False, e
+        print(f"Registration error: {e}")  # Log error details
+        return False, f"Registration error: {e}"
     finally:
-        session.close()
+        session.close()  # Close the session instance
 
+        
 def authenticate_user(email, password):
     try:
-        engine, session = connect_to_db()
+        engine, SessionLocal = connect_to_db()
+        session: Session = SessionLocal()  # Create a session instance
+
         stmt = select(User.hashed_pw).where(User.email == email)
         with engine.connect() as conn:
-            results = conn.execute(statement=stmt)
+            results = conn.execute(stmt)
             output = results.fetchone()
             if output is None:
                 return False, "User not registered"
             else:
+                # Log for debugging
                 print(output[0], deterministic_hash(password))
                 if output[0] == deterministic_hash(password):
                     return True, "Login successful"
                 else:
                     return False, "Wrong password"
     except Exception as e:
-        return False, e
+        print(f"Authentication error: {e}")
+        return False, str(e)
     finally:
-        session.close()    
+        session.close()  # Ensure you close the session instance

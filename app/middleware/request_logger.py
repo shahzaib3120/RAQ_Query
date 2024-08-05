@@ -22,14 +22,22 @@ class RequestLoggerMiddleware(BaseHTTPMiddleware):
         finally:
             request._receive = original_receive
 
-        engine, session = connect_to_db()
-        with session.begin():
+        # Ensure correct session creation and usage
+        engine, SessionLocal = connect_to_db()
+        session = SessionLocal()  # Create a session instance
+
+        try:
             log_entry = RequestLog(
                 endpoint=request.url.path,
                 method=request.method,
                 request_body=request_body.decode('utf-8') if request_body else None
             )
             session.add(log_entry)
+            session.commit()
+        except Exception as e:
+            print(f"Logging error: {e}")
+        finally:
+            session.close()  # Close the session to release resources
 
         return response
 
