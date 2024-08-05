@@ -2,7 +2,6 @@
 import React, { useEffect } from "react";
 import { BrowserRouter, Route, Routes, Link } from "react-router-dom";
 import Home from "../pages/Home";
-import About from "../pages/Login";
 import BookDetails from "../pages/BookDetails";
 
 import { useLocation } from "react-router";
@@ -23,7 +22,6 @@ const Router: React.FC = () => {
         <Routes>
           <Route path="/" Component={Home} />
           <Route path="/book/:id" Component={BookDetails} />
-          <Route path="/about" Component={About} />
         </Routes>
       </ScrollToTop>
     </BrowserRouter>
