@@ -167,28 +167,28 @@ def add_user(user: User):
         raise HTTPException(status_code=400, detail=message)
     return {"message": message, "user": user.email}
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 30  
 @app.post("/users/login")
-async def auth_user(login_data: Login):
-    print("Received login data:", login_data)  # Add this line
-    auth, message = authenticate_user(login_data.email, login_data.password)
+async def auth_user(login_data: Login, db: Session = Depends(get_db)):
+    print("Received login data:", login_data)
+
+    auth, message = authenticate_user(login_data.email, login_data.password, db)
     if not auth:
         raise HTTPException(status_code=401, detail=message)
-    success, message, user_info = retrieve_single_user(login_data.email)
+
+    success, message, user_info = retrieve_single_user(login_data.email, db)
     if not success:
         raise HTTPException(status_code=400, detail=message)
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user_info}, expires_delta=access_token_expires
-    )
 
+    access_token = create_access_token(
+        data={"sub": user_info["email"]}, expires_delta=access_token_expires
+    )
     return {
         "access_token": access_token,
         "token_type": "bearer",
         "user_info": user_info
     }
-
 
 @app.get("/users/me")
 def get_user(current_user: dict = test_user):

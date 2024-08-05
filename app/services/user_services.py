@@ -5,28 +5,23 @@ from app.utils.hash import deterministic_hash
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-def retrieve_single_user(id):
+def retrieve_single_user(email: str, db: Session):
     try:
-        engine, session = connect_to_db()
-        stmt = select(User.email, User.fname, User.lname, User.role, User.hashed_pw).where(User.email == id)
-        with engine.connect() as conn:
-            results = conn.execute(stmt)
-            output = results.fetchone()
-            if output is not None:
-                user = {
-                    "email": output[0],
-                    "fname": output[1],
-                    "lname": output[2],
-                    "role": output[3],
-                    "password": output[4]
-                }
-                return True, "User retrieved sucessfully", user
-            else:
-                return False, "User not found", None
+        stmt = select(User.email, User.fname, User.lname, User.role, User.hashed_pw).where(User.email == email)
+        result = db.execute(stmt).fetchone()
+        if result:
+            user = {
+                "email": result[0],
+                "fname": result[1],
+                "lname": result[2],
+                "role": result[3],
+                "password": result[4]
+            }
+            return True, "User retrieved successfully", user
+        else:
+            return False, "User not found", None
     except Exception as e:
-        return False, e, None
-    finally:
-        session.close()
+        return False, str(e), None
 
 def edit_user_info(email, user_update):
     success, message, user = retrieve_single_user(email)
@@ -93,26 +88,46 @@ def register_user(user_data):
         session.close()  # Close the session instance
 
         
-def authenticate_user(email, password):
-    try:
-        engine, SessionLocal = connect_to_db()
-        session: Session = SessionLocal()  # Create a session instance
+# def authenticate_user(email, password):
+#     try:
+#         engine, SessionLocal = connect_to_db()
+#         session: Session = SessionLocal()  # Create a session instance
 
+#         stmt = select(User.hashed_pw).where(User.email == email)
+#         with engine.connect() as conn:
+#             results = conn.execute(stmt)
+#             output = results.fetchone()
+#             if output is None:
+#                 return False, "User not registered"
+#             else:
+#                 # Log for debugging
+#                 print(output[0], deterministic_hash(password))
+#                 if output[0] == deterministic_hash(password):
+#                     return True, "Login successful"
+#                 else:
+#                     return False, "Wrong password"
+#     except Exception as e:
+#         print(f"Authentication error: {e}")
+#         return False, str(e)
+#     finally:
+#         session.close()  # Ensure you close the session instance
+
+def authenticate_user(email: str, password: str, db: Session):
+    try:
+        # Use the db session directly to query the User model
         stmt = select(User.hashed_pw).where(User.email == email)
-        with engine.connect() as conn:
-            results = conn.execute(stmt)
-            output = results.fetchone()
-            if output is None:
-                return False, "User not registered"
+        result = db.execute(stmt)
+        output = result.fetchone()
+
+        if output is None:
+            return False, "User not registered"
+        else:
+            # Log for debugging
+            print(output[0], deterministic_hash(password))
+            if output[0] == deterministic_hash(password):
+                return True, "Login successful"
             else:
-                # Log for debugging
-                print(output[0], deterministic_hash(password))
-                if output[0] == deterministic_hash(password):
-                    return True, "Login successful"
-                else:
-                    return False, "Wrong password"
+                return False, "Wrong password"
     except Exception as e:
         print(f"Authentication error: {e}")
         return False, str(e)
-    finally:
-        session.close()  # Ensure you close the session instance
