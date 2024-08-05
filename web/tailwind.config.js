@@ -10,6 +10,12 @@ module.exports = {
           200: "#888883",
         },
       },
+      perspective: {
+        '3d': '1000px',
+      },
+      transform: {
+        'flip-y': 'rotateY(180deg)',
+      },
     },
   },
   plugins: [require("@tailwindcss/line-clamp")],
