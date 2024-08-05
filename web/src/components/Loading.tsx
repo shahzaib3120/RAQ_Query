@@ -14,5 +14,4 @@ export const Loading: React.FC = () => (
       wrapperClass=""
     />
   </div>
-);
-
+)

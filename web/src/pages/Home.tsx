@@ -4,11 +4,11 @@ import { fetchBooks, setLimit, setOffset } from "../store/bookSlice";
 import { RootState, AppDispatch } from "../store";
 import { Loading as Spinner } from "../components/Loading";
 import Search from "../components/Search";
-import Chatbot from "../components/Chatbot";
-import Book from "../components/Book";
+import Chatbot from "../components/chatBot";
+import Book from "../components/book";
 import Error from "../components/Error";
 import Pagination from "../components/Pagination";
-import LogInSignUp from "../components/DropdownComponent";
+import LogInSignUp from "../components/DropdownWithIcon";
 
 const Home: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
