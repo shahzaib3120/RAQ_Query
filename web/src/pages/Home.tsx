@@ -31,15 +31,16 @@ const Home: React.FC = () => {
     <div className="h-screen flex flex-col bg-primary px-6 pt-6">
       <div className="flex justify-between items-center">
         <Chatbot />
-        <LogInSignUp /> {/* DropdownWithIcon component */}
+        <LogInSignUp />
       </div>
       <Search title={title} setTitle={setTitle} />
       <div className="flex-grow overflow-y-auto pb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-5">
           {books.map((book) => (
             <Book key={book.id} book={book} />
           ))}
         </div>
+        <Chatbot></Chatbot>
         <Pagination
           offset={offset}
           limit={limit}

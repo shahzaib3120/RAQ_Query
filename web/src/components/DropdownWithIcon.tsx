@@ -65,7 +65,7 @@ const DropdownWithIcon: React.FC = () => {
       )}
       {showLoginModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-[#101936] p-8 rounded-lg shadow-lg w-full max-w-md mx-4">
+          <div className="bg-[#101936] p-8 rounded-lg w-full max-w-md mx-4">
             <button onClick={closeModal} className="text-red-500 mb-4">Close</button>
             <LogInComponent />
           </div>
@@ -73,8 +73,8 @@ const DropdownWithIcon: React.FC = () => {
       )}
       {showSignupModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-black rounded-md p-4 shadow-lg w-full max-w-md mx-4">
-            <button onClick={closeModal} className="text-red-500">Close</button>
+          <div className="bg-[#101936] p-8 rounded-lg w-full max-w-md mx-4">
+          <button onClick={closeModal} className="text-red-500">Close</button>
             <SignUpComponent />
           </div>
         </div>

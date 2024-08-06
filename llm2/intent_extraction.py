@@ -64,7 +64,6 @@ class IntentExtractor:
                 Intent Number: [1-6]
                 Entity: [Entity Name]
                 
-                Entity name must not contain any exstra information or contex ,For example, if the user input is "Who is author of Harry potter?" , the entity name should be "Harry potter"
                 '{document}'
                 """
             )

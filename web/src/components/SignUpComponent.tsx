@@ -14,6 +14,11 @@ const SignUpComponent: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isPasswordValid, setIsPasswordValid] = useState(false);
+  const [passwordRequirements, setPasswordRequirements] = useState({
+    lengthValid: false,
+    numberValid: false,
+    symbolsValid: false,
+  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -30,6 +35,7 @@ const SignUpComponent: React.FC = () => {
     const symbolsValid = /^[A-Za-z0-9]*$/.test(password);
 
     setIsPasswordValid(lengthValid && numberValid && symbolsValid);
+    setPasswordRequirements({ lengthValid, numberValid, symbolsValid });
   };
 
   const handleRegister = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -132,11 +138,17 @@ const SignUpComponent: React.FC = () => {
               isPasswordValid ? 'border-gray-500' : 'border-red-500'
             } bg-[#151C32] text-white placeholder-gray-400 focus:ring-2 focus:ring-[#41D0C8] focus:outline-none`}
           />
-          {!isPasswordValid && (
-            <p className="text-red-500 mt-1 text-sm">
-              Password must be at least 8 characters long, contain a number, and have no special symbols.
+          <div className="mt-2 text-sm">
+            <p className={passwordRequirements.lengthValid ? 'text-green-500' : 'text-red-500'}>
+              • 8 characters or more
             </p>
-          )}
+            <p className={passwordRequirements.numberValid ? 'text-green-500' : 'text-red-500'}>
+              • At least one number
+            </p>
+            <p className={passwordRequirements.symbolsValid ? 'text-green-500' : 'text-red-500'}>
+              • No symbols
+            </p>
+          </div>
         </div>
         <button
           type="submit"
@@ -146,10 +158,11 @@ const SignUpComponent: React.FC = () => {
           disabled={!isPasswordValid || isLoading}
         >
           {isLoading ? (
-            <svg className="animate-spin h-5 w-5 mx-auto" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-            </svg>
+            <svg className="animate-spin h-2 w-2 mx-auto" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+          </svg>
+          
           ) : 'Sign Up'}
         </button>
       </form>

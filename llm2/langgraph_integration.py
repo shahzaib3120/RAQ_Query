@@ -41,22 +41,33 @@ def classify_input_node(state: GraphState) -> GraphState:
     return state
 
 def retrieve_book_info(state: GraphState) -> GraphState:
-    entity_name = state.get('entity_name', '')
-    with get_db_session() as db:
-        logging.info(f"Fetching book info for: {entity_name}")
-        book = db.query(Book).filter(Book.title.ilike(f"%{entity_name}%")).first()
-        if book:
-            state["book_info"] = {
-                "title": book.title,
-                "authors": ', '.join([author.name for author in book.authors]),
-                "published_year": book.published_year,
-                "genre": book.genre,
-                "description": book.description,
-            }
-            logging.info(f"Book info retrieved: {state['book_info']}")
-        else:
-            state["response"] = "No information found for the specified book."
+    entity_name = state.get('entity_name', '').strip()
+    logging.info(f"Entity name for query: '{entity_name}'")
+    
+    try:
+        with get_db_session() as db:
+            logging.info(f"Fetching book info for: {entity_name}")
+            book = db.query(Book).filter(Book.title.ilike(f"%{entity_name}%")).first()
+            logging.info(f"Book query result: {type(book)}, {book}")
+            
+            if book:
+                state["book_info"] = {
+                    "title": book.title,
+                    "authors": ', '.join([author.name for author in book.authors]),
+                    "published_year": book.published_year,
+                    "genre": book.genre,
+                    "description": book.description,
+                }
+                logging.info(f"Book info retrieved: {state['book_info']}")
+            else:
+                logging.warning("No matching book found in the database.")
+                state["response"] = "No information found for the specified book."
+    except Exception as e:
+        logging.error(f"Error during book information retrieval: {e}")
+        state["response"] = "An error occurred while fetching book information."
+    
     return state
+
 
 def get_author_info_node(state: GraphState) -> GraphState:
     entity_name = state.get('entity_name', '')
