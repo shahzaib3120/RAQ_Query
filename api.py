@@ -255,6 +255,36 @@ def health_check():
     return {"status": "healthy"}
 
 
+@app.post("/favorites/{book_id}")
+def add_favorite(book_id: int, current_user: dict = test_user, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == current_user["email"]).first()
+    book = db.query(User).filter(User.id == book_id).first()
+
+    if not book:
+        raise HTTPException(status_code=404, detail="Book not found")
+
+    if book not in user.favorite_books:
+        user.favorite_books.append(book)
+        db.commit()
+        return {"message": "Book added to favorites"}
+    else:
+        return {"message": "Book is already in favorites"}
+
+@app.delete("/favorites/{book_id}")
+def remove_favorite(book_id: int, current_user: dict = test_user, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == current_user["email"]).first()
+    book = db.query(User).filter(User.id == book_id).first()
+
+    if not book:
+        raise HTTPException(status_code=404, detail="Book not found")
+
+    if book in user.favorite_books:
+        user.favorite_books.remove(book)
+        db.commit()
+        return {"message": "Book removed from favorites"}
+    else:
+        return {"message": "Book is not in favorites"}
+
 
 # run the server
 if __name__ == "__main__":

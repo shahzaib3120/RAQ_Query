@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Book as BookType } from "../api/interfaces";
 import { Link } from "react-router-dom";
 import HeartIcon from "./HeartIcon";
-import StarRating from "./StarRating"; // Import the StarRating component
+import StarRating from "./StarRating";
 
 interface BookProps {
   book: BookType;
@@ -11,8 +11,24 @@ interface BookProps {
 const Book: React.FC<BookProps> = ({ book }) => {
   const [isHeartActive, setIsHeartActive] = useState(false);
 
-  const handleHeartClick = () => {
-    setIsHeartActive(!isHeartActive);
+  const handleHeartClick = async () => {
+    try {
+      const method = isHeartActive ? "DELETE" : "POST";
+      const response = await fetch(`/favorites/${book.id}`, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update favorite status");
+      }
+
+      setIsHeartActive(!isHeartActive);
+    } catch (error) {
+      console.error("Error updating favorite status:", error);
+    }
   };
 
   return (
@@ -20,7 +36,6 @@ const Book: React.FC<BookProps> = ({ book }) => {
       to={`/book/${book.id}`}
       className="relative rounded-lg overflow-hidden shadow-lg bg-primary hover:bg-blue-950 border border-opacity-10 border-slate-100 flex flex-col"
     >
-
       <div
         className="absolute top-2 right-2"
         onClick={(e) => {

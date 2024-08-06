@@ -41,53 +41,62 @@ def classify_input_node(state: GraphState) -> GraphState:
     return state
 
 def retrieve_book_info(state: GraphState) -> GraphState:
-    entity_name = state.get('entity_name', '').strip()
-    logging.info(f"Entity name for query: '{entity_name}'")
-    
-    try:
-        with get_db_session() as db:
-            logging.info(f"Fetching book info for: {entity_name}")
-            book = db.query(Book).filter(Book.title.ilike(f"%{entity_name}%")).first()
-            logging.info(f"Book query result: {type(book)}, {book}")
-            
-            if book:
-                state["book_info"] = {
-                    "title": book.title,
-                    "authors": ', '.join([author.name for author in book.authors]),
-                    "published_year": book.published_year,
-                    "genre": book.genre,
-                    "description": book.description,
-                }
-                logging.info(f"Book info retrieved: {state['book_info']}")
-            else:
-                logging.warning("No matching book found in the database.")
-                state["response"] = "No information found for the specified book."
-    except Exception as e:
-        logging.error(f"Error during book information retrieval: {e}")
-        state["response"] = "An error occurred while fetching book information."
-    
-    return state
-
-
-def get_author_info_node(state: GraphState) -> GraphState:
     entity_name = state.get('entity_name', '')
     with get_db_session() as db:
-        logging.info(f"Fetching author info for: {entity_name}")
-        author = db.query(Author).filter(Author.name.ilike(f"%{entity_name}%")).first()
-        if author:
-            book_titles = ', '.join(book.title for book in author.books)
-            state["response"] = f"Author Name: {author.name}\nBooks: {book_titles}"
+        logging.info(f"Fetching book info for: {entity_name}")
+        book = db.query(Book).filter(Book.title.ilike(f"%{entity_name}%")).first()
+        if book:
+            state["book_info"] = {
+                "title": book.title,
+                "authors": ', '.join([author.name for author in book.authors]),
+                "published_year": book.published_year,
+                "genre": book.genre,
+                "description": book.description,
+            }
+            logging.info(f"Book info retrieved: {state['book_info']}")
         else:
-            state["response"] = "No information found for the specified author."
+            state["response"] = "No information found for the specified book."
     return state
+
+def get_author_info_node(state: GraphState) -> GraphState:
+    entity_name = state.get('entity_name', '').strip()
+    logging.info(f"Fetching author name for book: '{entity_name}'")
+    
+    with get_db_session() as db:
+        try:
+            book = db.query(Book).filter(Book.title.ilike(f"%{entity_name}%")).first()
+            if book:
+                authors = ', '.join([author.name for author in book.authors])
+                state["response"] = f"Author(s): {authors}"
+                logging.info(f"Authors retrieved: {authors}")
+            else:
+                logging.warning("No matching book found for author query.")
+                state["response"] = "No author information found for the specified book."
+        except Exception as e:
+            logging.error(f"Error fetching author information: {e}")
+            state["response"] = "An error occurred while retrieving author information."
+    
+    return state
+
 
 def get_publication_year_node(state: GraphState) -> GraphState:
     book_info = state.get("book_info")
+    logging.info(f"Retrieving publication year for book: '{state.get('entity_name')}'")
+    
     if book_info:
-        state["response"] = f"Published Year: {book_info['published_year']}"
+        logging.info(f"Book info found: {book_info}")
+        published_year = book_info.get('published_year')
+        if published_year:
+            state["response"] = f"Published Year: {published_year}"
+        else:
+            logging.warning("Publication year not available in book info.")
+            state["response"] = "No publication year found for the specified book."
     else:
+        logging.warning("No book info available to retrieve publication year.")
         state["response"] = "No publication year found for the specified book."
+    
     return state
+
 
 def get_book_info_node(state: GraphState) -> GraphState:
     book_info = state.get("book_info")
