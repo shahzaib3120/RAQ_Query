@@ -60,8 +60,14 @@ const SignUpComponent: React.FC = () => {
     try {
       const response = await registerUser(registerData);
       console.log('Registration successful:', response);
-    } catch (err) {
-      setError('Registration failed. Please try again.');
+      // Optionally reset the form or redirect the user
+    } catch (err: any) {
+      // Handle specific error messages from the server
+      if (err.message.includes('already exists')) {
+        setError('Email or username is already in use.');
+      } else {
+        setError(err.message || 'Registration failed. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -159,11 +165,12 @@ const SignUpComponent: React.FC = () => {
         >
           {isLoading ? (
             <svg className="animate-spin h-2 w-2 mx-auto" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-          </svg>
-          
-          ) : 'Sign Up'}
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+          ) : (
+            'Sign Up'
+          )}
         </button>
       </form>
     </div>

@@ -7,21 +7,40 @@ from sqlalchemy.orm import Session
 
 def retrieve_single_user(email: str, db: Session):
     try:
-        stmt = select(User.email, User.fname, User.lname, User.role, User.hashed_pw).where(User.email == email)
+        stmt = select(User.email, User.fname, User.lname, User.role).where(User.email == email)
         result = db.execute(stmt).fetchone()
         if result:
             user = {
                 "email": result[0],
                 "fname": result[1],
                 "lname": result[2],
-                "role": result[3],
-                "password": result[4]
+                "role": result[3]
             }
             return True, "User retrieved successfully", user
         else:
             return False, "User not found", None
     except Exception as e:
         return False, str(e), None
+
+
+def authenticate_user(email: str, password: str, db: Session):
+    try:
+        # Query the database for the user's hashed password
+        stmt = select(User.hashed_pw).where(User.email == email)
+        result = db.execute(stmt)
+        output = result.fetchone()
+
+        if output is None:
+            return False, "User not registered"
+        else:
+            if output[0] == deterministic_hash(password):
+                return True, "Login successful"
+            else:
+                return False, "Wrong password"
+    except Exception as e:
+        print(f"Authentication error: {e}")
+        return False, str(e)
+
 
 def edit_user_info(email, user_update):
     success, message, user = retrieve_single_user(email)
@@ -87,6 +106,24 @@ def register_user(user_data):
     finally:
         session.close()  # Close the session instance
 
+def authenticate_user(email: str, password: str, db: Session):
+    try:
+        stmt = select(User.hashed_pw).where(User.email == email)
+        result = db.execute(stmt)
+        output = result.fetchone()
+
+        if output is None:
+            return False, "User not registered"
+        else:
+            # Log for debugging
+            print(output[0], deterministic_hash(password))
+            if output[0] == deterministic_hash(password):
+                return True, "Login successful"
+            else:
+                return False, "Wrong password"
+    except Exception as e:
+        print(f"Authentication error: {e}")
+        return False, str(e)
         
 # def authenticate_user(email, password):
 #     try:
@@ -112,22 +149,3 @@ def register_user(user_data):
 #     finally:
 #         session.close()  # Ensure you close the session instance
 
-def authenticate_user(email: str, password: str, db: Session):
-    try:
-        # Use the db session directly to query the User model
-        stmt = select(User.hashed_pw).where(User.email == email)
-        result = db.execute(stmt)
-        output = result.fetchone()
-
-        if output is None:
-            return False, "User not registered"
-        else:
-            # Log for debugging
-            print(output[0], deterministic_hash(password))
-            if output[0] == deterministic_hash(password):
-                return True, "Login successful"
-            else:
-                return False, "Wrong password"
-    except Exception as e:
-        print(f"Authentication error: {e}")
-        return False, str(e)

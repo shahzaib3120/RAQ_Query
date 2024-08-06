@@ -1,8 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
+from app.config import SECRET_KEY , ALGORITHM
 
-SECRET_KEY = "maha"
-ALGORITHM = "HS256"
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
