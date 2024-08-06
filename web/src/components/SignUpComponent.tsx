@@ -11,16 +11,17 @@ const SignUpComponent: React.FC = () => {
     password: '',
     role: 0,
   });
-
   const [error, setError] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [isPasswordValid, setIsPasswordValid] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isPasswordValid, setIsPasswordValid] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setRegisterData((prevData) => ({ ...prevData, [name]: value }));
-    if (name === 'password') validatePassword(value);
+    setRegisterData({ ...registerData, [name]: value });
+
+    if (name === 'password') {
+      validatePassword(value);
+    }
   };
 
   const validatePassword = (password: string) => {
@@ -31,74 +32,111 @@ const SignUpComponent: React.FC = () => {
     setIsPasswordValid(lengthValid && numberValid && symbolsValid);
   };
 
-  const handleSignUp = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleRegister = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
-    setSuccessMessage(null);
 
-    if (!isPasswordValid) {
-      setError('Please ensure the password meets all requirements.');
+    // Ensure all fields are filled
+    if (
+      !registerData.email ||
+      !registerData.fname ||
+      !registerData.lname ||
+      !registerData.username ||
+      !registerData.password
+    ) {
+      setError('Please fill out all fields.');
       return;
     }
 
+    console.log('Registration data being sent:', registerData);
     setIsLoading(true);
+
     try {
       const response = await registerUser(registerData);
-      setSuccessMessage(response.message);
-      setRegisterData({
-        email: '',
-        fname: '',
-        lname: '',
-        username: '',
-        password: '',
-        role: 0,
-      });
-    } catch (err: any) {
-      if (err.response && err.response.data) {
-        setError(err.response.data.detail || 'An unexpected error occurred');
-      } else {
-        setError('An unexpected error occurred');
-      }
+      console.log('Registration successful:', response);
+    } catch (err) {
+      setError('Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="bg-[#101936] p-8 rounded-lg shadow-xl w-full max-w-xl mx-auto">
-      <h2 className="text-center text-white text-3xl font-bold mb-8">Sign Up</h2>
-      {error && <p className="text-red-400 mb-4 text-center">{error}</p>}
-      {successMessage && <p className="text-green-400 mb-4 text-center">{successMessage}</p>}
-      <form onSubmit={handleSignUp} className="space-y-6">
-        {['email', 'fname', 'lname', 'username', 'password'].map((field, index) => (
-          <div key={index} className="flex flex-col w-full">
-            <label className="text-[#F7F5FF] mb-2" htmlFor={field}>
-              {field.charAt(0).toUpperCase() + field.slice(1).replace('_', ' ')}
-            </label>
-            <input
-              id={field}
-              type={field === 'password' ? 'password' : 'text'}
-              name={field}
-              placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-              value={(registerData as any)[field]}
-              onChange={handleInputChange}
-              required
-              className="p-4 rounded-md border border-[#445A9A] bg-[#1C2C56] text-white placeholder-[#AFB1B6] focus:ring-2 focus:ring-[#41D0C8] focus:outline-none transition"
-            />
-          </div>
-        ))}
-        <div className="text-sm w-full text-left">
-          <ul className="space-y-1">
-            <li className={`${registerData.password.length >= 8 ? 'text-green-400' : 'text-red-400'}`}>
-              • 8 characters or more
-            </li>
-            <li className={`${/\d/.test(registerData.password) ? 'text-green-400' : 'text-red-400'}`}>
-              • At least one number
-            </li>
-            <li className={`${/^[A-Za-z0-9]*$/.test(registerData.password) ? 'text-green-400' : 'text-red-400'}`}>
-              • No symbols
-            </li>
-          </ul>
+    <div className="bg-[#101936] p-6 rounded-lg shadow-lg w-full max-w-md mx-auto">
+      <h2 className="text-center text-white text-2xl font-semibold mb-6">Sign Up</h2>
+      {error && <p className="text-red-500 mb-2">{error}</p>}
+      <form onSubmit={handleRegister} className="space-y-6">
+        <div>
+          <label className="block text-white mb-1" htmlFor="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            name="email"
+            placeholder="example@pwc.com"
+            value={registerData.email}
+            onChange={handleInputChange}
+            required
+            className="w-full px-4 py-3 rounded border border-gray-500 bg-[#151C32] text-white placeholder-gray-400 focus:ring-2 focus:ring-[#41D0C8] focus:outline-none"
+          />
+        </div>
+        <div>
+          <label className="block text-white mb-1" htmlFor="fname">First Name</label>
+          <input
+            id="fname"
+            type="text"
+            name="fname"
+            placeholder="First Name"
+            value={registerData.fname}
+            onChange={handleInputChange}
+            required
+            className="w-full px-4 py-3 rounded border border-gray-500 bg-[#151C32] text-white placeholder-gray-400 focus:ring-2 focus:ring-[#41D0C8] focus:outline-none"
+          />
+        </div>
+        <div>
+          <label className="block text-white mb-1" htmlFor="lname">Last Name</label>
+          <input
+            id="lname"
+            type="text"
+            name="lname"
+            placeholder="Last Name"
+            value={registerData.lname}
+            onChange={handleInputChange}
+            required
+            className="w-full px-4 py-3 rounded border border-gray-500 bg-[#151C32] text-white placeholder-gray-400 focus:ring-2 focus:ring-[#41D0C8] focus:outline-none"
+          />
+        </div>
+        <div>
+          <label className="block text-white mb-1" htmlFor="username">Username</label>
+          <input
+            id="username"
+            type="text"
+            name="username"
+            placeholder="Username"
+            value={registerData.username}
+            onChange={handleInputChange}
+            required
+            className="w-full px-4 py-3 rounded border border-gray-500 bg-[#151C32] text-white placeholder-gray-400 focus:ring-2 focus:ring-[#41D0C8] focus:outline-none"
+          />
+        </div>
+        <div>
+          <label className="block text-white mb-1" htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={registerData.password}
+            onChange={handleInputChange}
+            required
+            className={`w-full px-4 py-3 rounded border ${
+              isPasswordValid ? 'border-gray-500' : 'border-red-500'
+            } bg-[#151C32] text-white placeholder-gray-400 focus:ring-2 focus:ring-[#41D0C8] focus:outline-none`}
+          />
+          {!isPasswordValid && (
+            <p className="text-red-500 mt-1 text-sm">
+              Password must be at least 8 characters long, contain a number, and have no special symbols.
+            </p>
+          )}
         </div>
         <button
           type="submit"
