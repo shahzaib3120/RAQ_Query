@@ -28,7 +28,9 @@ from app.services.book_services import (
     add_book_to_db,
     delete_book_from_db,
     edit_book_info,
-    search_books_by_title
+    search_books_by_title,
+    add_to_favourites,
+    remove_from_favourites
 )
 from app.services.token_services import create_access_token
 from app.schemas.login_info import Login
@@ -41,10 +43,20 @@ from app.utils.config import ACCESS_TOKEN_EXPIRE_MINUTES
 from app.pgAdmi4.SaveDataToVectorstore import similarity_text
 from llm2.intent_extraction import IntentExtractor
 
+# Token verification
+from fastapi import Depends, HTTPException, Security
+from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError
+from app.services.token_services import verify_token
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
+
 app = FastAPI()
 
 # Temporary test user
 test_user = {"role": 1, "email": "test@example.com"}
+class FavoriteRequest(BaseModel):
+    book_id: int
 
 @app.get("/")
 def read_root(current_user: dict = test_user):
@@ -66,14 +78,30 @@ setup_middleware(app)
 @app.get("/books")
 def get_books(
     db: Session = Depends(get_db),
+    token: str = Security(oauth2_scheme),
     title: str = "", 
     limit: int = 10, 
     offset: int = 0  
 ):  
-    if title:
-        success, message, books = search_books_by_title(db, title=title, limit=limit, offset=offset)
+    user_email = None
+    if token:
+        print("Token received:", token)
+        try:
+            payload = verify_token(token)
+            user_email = payload.get("email")
+            if user_email is None:
+                raise HTTPException(status_code=401, detail="Invalid token payload")
+            print(f"Authenticated user: {user_email}")
+        except JWTError:
+            raise HTTPException(status_code=401, detail="Token verification failed")
     else:
-        success, message, books = retrieve_books_from_db(db, limit=limit, offset=offset)
+        print("No token received")
+        
+    if title != "":
+        print("Searching for books with title:", title)
+        success, message, books = search_books_by_title(db, title=title, limit=limit, offset=offset, email=user_email)
+    else:
+        success, message, books = retrieve_books_from_db(db, limit=limit, offset=offset, email=user_email)
     if not success:
         raise HTTPException(status_code=500, detail=message)
     return {"message": message, "books": books, "limit": limit, "offset": offset}
@@ -85,6 +113,50 @@ def get_book(book_id: int, db: Session = Depends(get_db), current_user: dict = t
     if not success:
         raise HTTPException(status_code=404, detail=message)
     return {"message": message, "book": book}
+
+@app.post("/books/add_to_favorites")
+def add_book_to_favorites(request: FavoriteRequest,
+                          db: Session = Depends(get_db),
+                          token: str = Security(oauth2_scheme)):
+    book_id = request.book_id
+    if token:
+        print("Token received:", token)
+        try:
+            payload = verify_token(token)
+            user_email = payload.get("email")
+            if user_email is None:
+                raise HTTPException(status_code=401, detail="Invalid token payload")
+            print(f"Authenticated user: {user_email}")
+        except JWTError:
+            raise HTTPException(status_code=401, detail="Token verification failed")
+    else:
+        raise HTTPException(status_code=401, detail="Token is required to add book to favorites")
+    success, message = add_to_favourites(db, user_email, book_id)
+    if not success:
+        raise HTTPException(status_code=500, detail=message)
+    return {"message": message, "book_id": book_id, "user_email": user_email}
+
+@app.post("/books/remove_from_favorites")
+def remove_book_from_favorites(request: FavoriteRequest,
+                                 db: Session = Depends(get_db),
+                                 token: str = Security(oauth2_scheme)):
+    book_id = request.book_id
+    if token:
+        print("Token received:", token)
+        try:
+            payload = verify_token(token)
+            user_email = payload.get("email")
+            if user_email is None:
+                raise HTTPException(status_code=401, detail="Invalid token payload")
+            print(f"Authenticated user: {user_email}")
+        except JWTError:
+            raise HTTPException(status_code=401, detail="Token verification failed")
+    else:
+        raise HTTPException(status_code=401, detail="Token is required to remove book from favorites")
+    success, message = remove_from_favourites(db, user_email, book_id)
+    if not success:
+        raise HTTPException(status_code=500, detail=message)
+    return {"message": message, "book_id": book_id, "user_email": user_email}
 
 
 @app.get("/chat")
@@ -178,7 +250,7 @@ async def auth_user(login_data: Login, db: Session = Depends(get_db)):
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
     access_token = create_access_token(
-        data={"sub": user_info["email"]}, expires_delta=access_token_expires
+        data={"email": user_info["email"]}, expires_delta=access_token_expires
     )
     return {
         "access_token": access_token,

@@ -4,8 +4,8 @@ import { fetchBooks, setLimit, setOffset } from "../store/bookSlice";
 import { RootState, AppDispatch } from "../store";
 import { Loading as Spinner } from "../components/Loading";
 import Search from "../components/Search";
-import Chatbot from "../components/chatBot";
-import Book from "../components/book";
+import Chatbot from "../components/Chatbot";
+import Book from "../components/Book";
 import Error from "../components/Error";
 import Pagination from "../components/Pagination";
 import LogInSignUp from "../components/DropdownWithIcon";
@@ -18,24 +18,32 @@ const Home: React.FC = () => {
   );
 
   useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      console.log("Token: ", token);
+    }
+  }, []);
+
+  useEffect(() => {
     dispatch(fetchBooks({ title, limit, offset }));
-  }, [dispatch, title, limit, offset]);
+  }, [dispatch, limit, offset]);
 
   const handleNextPage = () => dispatch(setOffset(offset + limit));
-  const handlePreviousPage = () => dispatch(setOffset(Math.max(offset - limit, 0)));
+  const handlePreviousPage = () =>
+    dispatch(setOffset(Math.max(offset - limit, 0)));
 
   if (loading) return <Spinner />;
   if (error) return <Error error={error} />;
 
   return (
     <div className="h-screen flex flex-col bg-primary px-6 pt-6">
-      <div className="flex justify-between items-center">
-        <Chatbot />
+      <Chatbot />
+      <div className="flex justify-between items-center mb-4 border-b border-opacity-15 border-slate pb-4">
+        <Search title={title} setTitle={setTitle} />
         <LogInSignUp />
       </div>
-      <Search title={title} setTitle={setTitle} />
-      <div className="flex-grow overflow-y-auto pb-6">
-        <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-5">
+      <div className="flex flex-col overflow-y-auto pb-6">
+        <div className="grid sm:grid-cols-2  md:grid-cols-4 xl:grid-cols-6 lg:grid-cols-5 gap-8">
           {books.map((book) => (
             <Book key={book.id} book={book} />
           ))}

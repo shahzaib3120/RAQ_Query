@@ -10,3 +10,6 @@ class RequestLog(Base):
     method = Column(String(10), nullable=False)
     request_body = Column(Text, nullable=True)
     timestamp = Column(DateTime(timezone=True), default=datetime.now(timezone.utc), nullable=False)
+    
+    def __repr__(self):
+        return f"<RequestLog {self.endpoint} {self.method} {self.timestamp}>"

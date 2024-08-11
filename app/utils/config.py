@@ -5,4 +5,4 @@ load_dotenv()
 
 SECRET_KEY = os.getenv('SECRET_KEY', default="maha's_super_secret_key_that_nobody_will_decode")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 1
+ACCESS_TOKEN_EXPIRE_MINUTES = 120
